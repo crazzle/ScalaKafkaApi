@@ -10,7 +10,11 @@ object Dependencies {
   }
 
   object Libraries {
-    val typesafeconfig       = "com.typesafe"        % "config"       % Versions.typesafeconfig
-    val kafkaclient                = "org.apache.kafka"    % "kafka-clients"   % Versions.kafka
+    val typesafeconfig        = "com.typesafe"         % "config"          % Versions.typesafeconfig
+    val kafkaclient           = "org.apache.kafka"     % "kafka-clients"   % Versions.kafka
+    val kafka                 = ("org.apache.kafka"     % "kafka_2.10"      % Versions.kafka).
+                                exclude("javax.jms", "jms").
+                                exclude("com.sun.jdmk", "jmxtools").
+                                exclude("com.sun.jmx", "jmxri")
   }
 }
