@@ -34,6 +34,8 @@ case class KafkaMessageConsumer(topics : String*) {
   }
 
   def commitOffset = consumer.commitOffsets
+
+  def shutDown = consumer.shutdown()
 }
 object KafkaMessageConsumer{
   lazy val config = new KafkaConfig() with KafkaConsumerConfig
