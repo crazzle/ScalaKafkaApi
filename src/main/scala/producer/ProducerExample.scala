@@ -7,7 +7,7 @@ object ProducerExample {
       x =>
         strProducer.sendMessage(x.toString)
         println(x)
-        Thread.sleep(50)
+        Thread.sleep(500)
       }
     }
 }

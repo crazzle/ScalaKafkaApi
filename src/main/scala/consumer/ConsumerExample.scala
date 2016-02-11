@@ -7,10 +7,9 @@ object ConsumerExample {
   def main(args: Array[String]): Unit = {
     val strConsumer = KafkaMessageConsumer("test")
     while(true) {
-      val t = System.currentTimeMillis()
-      val messages = strConsumer.chunk()
-      println(System.currentTimeMillis()-t)
-      println(s"messages obtained is ${messages}")
+      val stream = strConsumer.readNext()
+      println(s"messages obtained is ${stream}")
+      strConsumer.commitOffset
       Thread.sleep(500)
     }
   }
