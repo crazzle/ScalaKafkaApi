@@ -6,8 +6,12 @@ package consumer
 object ConsumerExample {
   def main(args: Array[String]): Unit = {
     val strConsumer = KafkaMessageConsumer("test")
-    while(true){
-      println("read: " + strConsumer.read().head)
+    while(true) {
+      val t = System.currentTimeMillis()
+      val messages = strConsumer.chunk()
+      println(System.currentTimeMillis()-t)
+      println(s"messages obtained is ${messages}")
+      Thread.sleep(500)
     }
   }
 }
