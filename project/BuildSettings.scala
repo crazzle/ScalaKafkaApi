@@ -7,7 +7,7 @@ object BuildSettings {
     organization  := "com.plainpixels.work",
     version       := "0.1.0-SNAPSHOT",
     description   := "scala kafka api wrapper",
-    scalaVersion  := "2.11.7",
+    scalaVersion  := "2.10.6",
     scalacOptions := Seq("-deprecation", "-encoding", "utf8"),
     resolvers     ++= Dependencies.resolutionRepos
   )

@@ -13,7 +13,10 @@ class KafkaConfig{
     .map(entry => (entry.getKey(), config.getString(entry.getKey())))(breakOut)
 
   lazy val asProperty : Properties = config.entrySet()
-    .foldLeft(new Properties())((acc, el) => new Properties(acc))
+    .foldLeft(new Properties())((acc, el) => {
+      acc.setProperty(el.getKey(), config.getString(el.getKey()))
+      acc
+    })
 }
 
 trait KafkaConsumerConfig extends KafkaConfig{
