@@ -24,7 +24,6 @@ case class KafkaMessageConsumer(topics : String*) {
     @tailrec
     def poll(pollConfig: PollConfig, messages: Seq[String]): Seq[String] = {
       val isTimeLapsed = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) > pollConfig.pollTimeout
-      //val hasNext = stream.queue.remainingCapacity()
       if (!isTimeLapsed) {
         val newMessages = Try(stream.head.message()) match {
           case Success(suck) => Seq(suck)
