@@ -11,12 +11,10 @@ import scala.collection.JavaConversions._
   */
 class ProducerTestSpec extends WordSpec with ShouldMatchers with BeforeAndAfter{
 
-  val kafkaUnitServer = new KafkaUnit(5000, 5001)
-  val topic = "test1"
+  val kafkaUnitServer = new KafkaUnit(1024, 5001)
 
   before {
     kafkaUnitServer.startup()
-    kafkaUnitServer.createTopic(topic);
   }
 
   after{
@@ -26,6 +24,8 @@ class ProducerTestSpec extends WordSpec with ShouldMatchers with BeforeAndAfter{
   "A ProducerSpec" when {
     "executed" should {
       "push a message into a defined topic" in {
+        val topic = "producerTest1"
+        kafkaUnitServer.createTopic(topic);
         val producer = new KafkaMessageProducer[String](topic)
         producer.sendMessage("testMessage")
         val messages = kafkaUnitServer.readMessages(topic, 1)
@@ -34,6 +34,8 @@ class ProducerTestSpec extends WordSpec with ShouldMatchers with BeforeAndAfter{
       }
 
       "push many messages into a defined topic" in {
+        val topic = "producerTest2"
+        kafkaUnitServer.createTopic(topic);
         val producer = new KafkaMessageProducer[String](topic)
         val messages = Gen.containerOf[List,String](Gen.numStr)
         val prop = forAll(messages){(msgs : List[String]) =>

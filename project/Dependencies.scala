@@ -7,7 +7,7 @@ object Dependencies {
    object Versions {
     val kafka           = "0.8.2.2"
     val typesafeconfig  = "1.2.1"
-    val kafkaunit       = "0.2"
+    val kafkaunit       = "0.3"
     val scalatest       = "2.2.6"
     val scalacheck      = "1.13.0"
   }
