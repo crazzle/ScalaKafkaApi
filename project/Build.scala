@@ -18,8 +18,10 @@ object Build extends Build {
     .settings(
       libraryDependencies ++= Seq(
         Libraries.typesafeconfig,
-        Libraries.kafkaclient,
-        Libraries.kafka
+        Libraries.kafka,
+        Libraries.kafkaunit,
+        Libraries.scalatest,
+        Libraries.scalacheck
       )
     )
 }
