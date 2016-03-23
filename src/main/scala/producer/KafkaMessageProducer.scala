@@ -1,19 +1,29 @@
 package producer
 
-import configuration.{KafkaProducerConfig, KafkaConfig}
-import org.apache.kafka.clients.producer.{ProducerRecord, KafkaProducer}
-import scala.collection.JavaConversions._
-import KafkaMessageProducer.config
+import configuration.KafkaConfig
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
 
-case class KafkaMessageProducer[A](topic: String) {
-  private lazy val producer = new KafkaProducer[A,A](config asMap)
+import scala.concurrent.{ExecutionContext, Future, blocking}
 
-  private def record(topic: String, record: A) = new ProducerRecord[A, A](topic, record)
-  private def send(producer: KafkaProducer[A, A], record: ProducerRecord[A, A]) = producer.send(record)
+object KafkaMessageProducer {
 
-  def sendMessage(rec: A) = send(producer, record(topic, rec))
-  def close() = producer.close()
-}
-object KafkaMessageProducer{
-  lazy val config = new KafkaConfig() with KafkaProducerConfig
+  def apply(config: KafkaConfig): KafkaProducer[String, String] = {
+    new KafkaProducer(config asProperty)
+  }
+
+  implicit class KafkaProducerOps[KeyType, ValueType](producer: KafkaProducer[KeyType, ValueType]) {
+    def sendMessage(topic: String, message: ValueType)(implicit ec: ExecutionContext): Future[RecordMetadata] = Future {
+      blocking {
+        sendRecord(producer, createRecord(topic, message)).get()
+      }
+    }
+
+    private def sendRecord(producer: KafkaProducer[KeyType, ValueType], record: ProducerRecord[KeyType, ValueType]) = {
+      producer.send(record)
+    }
+
+    private def createRecord(topic: String, record: ValueType): ProducerRecord[KeyType, ValueType] = {
+      new ProducerRecord(topic, record)
+    }
+  }
 }

@@ -1,44 +1,50 @@
 package consumer
 
-import java.util.concurrent.TimeUnit
+import configuration.KafkaConfig
+import kafka.consumer._
+import kafka.serializer.{Decoder, StringDecoder}
+import rx.lang.scala.Observable
 
-import configuration.{KafkaConsumerConfig, KafkaConfig}
-import kafka.consumer.{ConsumerConfig, Consumer, Whitelist}
-import kafka.serializer.{StringDecoder}
-import KafkaMessageConsumer._
-import scala.annotation.tailrec
-import scala.concurrent.duration.{FiniteDuration, Duration}
-import scala.util.Try
+import scala.concurrent.{ExecutionContext, Future, blocking}
 
-case class KafkaMessageConsumer(topics : String*) {
-  private val topicFilter = new Whitelist(topics.mkString(","))
 
-  private lazy val consumer = Consumer.create(new ConsumerConfig(config asProperty))
-  private lazy val stream = consumer.createMessageStreamsByFilter(topicFilter, numStreams, stringDecoder, stringDecoder).head
+object KafkaMessageConsumer {
 
-  def readNext() = Try(stream.head.message()).toOption
-
-  def grabInDuration(timeout : Duration = FiniteDuration(1, TimeUnit.SECONDS)) = {
-    @tailrec
-    def poll(windowEnd : Duration, messages: Seq[String]): Seq[String] = {
-      if (!(nowInSeconds > windowEnd)) {
-        val newMessage = Try(Seq(stream.head.message())).getOrElse(Seq.empty[String])
-        poll(windowEnd, messages ++ newMessage)
-      } else {
-        messages
-      }
-    }
-    poll(nowInSeconds + timeout, Seq.empty[String])
+  def apply(config: KafkaConfig, groupId : String): ConsumerConnector = {
+    val properties = config.asProperty
+    properties.setProperty("group.id", groupId)
+    Consumer.create(new ConsumerConfig(properties))
   }
 
-  def commitOffset = consumer.commitOffsets
+  implicit class KafkaConsumerOps(consumer: ConsumerConnector) {
+    private val stringDecoder = new StringDecoder
 
-  def shutDown = consumer.shutdown()
-}
-object KafkaMessageConsumer{
-  lazy val config = new KafkaConfig() with KafkaConsumerConfig
-  val stringDecoder = new StringDecoder()
-  val numStreams = 1
-  def now = System.currentTimeMillis()
-  def nowInSeconds = FiniteDuration(now, TimeUnit.MILLISECONDS)
+    def subscribe(topics: String*): KafkaStream[String, String] = subscribe(stringDecoder, stringDecoder, topics: _*)
+
+    def subscribe[KeyType, ValueType](keyDecoder: Decoder[KeyType], valueDecoder: Decoder[ValueType],
+                                      topics: String*): KafkaStream[KeyType, ValueType] = {
+
+      consumer.createMessageStreamsByFilter(topicFilter(topics), 1, keyDecoder, valueDecoder).head
+    }
+
+    def observe(topics: String*): Observable[String] = {
+      observe(stringDecoder, stringDecoder, topics : _*)
+    }
+
+    def observe[KeyType, ValueType](keyDecoder: Decoder[KeyType], valueDecoder: Decoder[ValueType],
+                                    topics: String*): Observable[ValueType] = {
+
+      Observable.from(subscribe(keyDecoder, valueDecoder, topics: _*).iterator().toIterable).map(_.message())
+    }
+
+    private def topicFilter(topics: Seq[String]) = new Whitelist(topics.mkString(","))
+  }
+
+  implicit class KafkaStreamOps[KeyType, ValueType](stream: KafkaStream[KeyType, ValueType]) {
+    def poll(implicit ec: ExecutionContext): Future[ValueType] = Future {
+      blocking {
+        stream.head.message()
+      }
+    }
+  }
 }

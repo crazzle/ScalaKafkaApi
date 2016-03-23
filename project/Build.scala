@@ -19,6 +19,7 @@ object Build extends Build {
       libraryDependencies ++= Seq(
         Libraries.typesafeconfig,
         Libraries.kafka,
+        Libraries.rxscala,
         Libraries.kafkaunit,
         Libraries.scalatest,
         Libraries.scalacheck

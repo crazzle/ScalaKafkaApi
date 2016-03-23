@@ -10,6 +10,7 @@ object Dependencies {
     val kafkaunit       = "0.3"
     val scalatest       = "2.2.6"
     val scalacheck      = "1.13.0"
+    val rxscala         = "0.24.1"
   }
 
   object Libraries {
@@ -18,6 +19,7 @@ object Dependencies {
                                 exclude("javax.jms", "jms").
                                 exclude("com.sun.jdmk", "jmxtools").
                                 exclude("com.sun.jmx", "jmxri")
+    val rxscala               = "io.reactivex"         %% "rxscala"        % Versions.rxscala
     val kafkaunit            = "info.batey.kafka"      % "kafka-unit"      % Versions.kafkaunit           % "test"
     val scalatest            = "org.scalatest"         %% "scalatest"      % Versions.scalatest           % "test"
     val scalacheck           = "org.scalacheck"        %% "scalacheck"     % Versions.scalacheck          % "test"
