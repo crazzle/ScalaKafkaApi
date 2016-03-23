@@ -1,4 +1,4 @@
-# ScalaKafkaApi
+# ScalaKafkaApi [![Build Status](https://travis-ci.org/crazzle/ScalaKafkaApi.svg?branch=master)](https://travis-ci.org/crazzle/ScalaKafkaApi)
 A small and simplified wrapper around the Apache Kafka consumer and producer API
 
 # Features
